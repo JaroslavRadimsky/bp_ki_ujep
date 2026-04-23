@@ -1,3 +1,9 @@
+"""Convert color vertebra masks into LabelMe point annotations.
+
+The script extracts anatomical landmarks from vertebra masks and stores the
+result as LabelMe JSON files for downstream metric computation.
+"""
+
 import argparse
 import json
 from pathlib import Path
@@ -34,6 +40,7 @@ def mask_from_color(img_bgr: np.ndarray, color_bgr: tuple[int, int, int], tol: i
 
 
 def main_contour(mask_u8: np.ndarray):
+    """Return the largest external contour found in a binary mask."""
     cnts, _ = cv2.findContours(mask_u8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     if not cnts:
         return None
@@ -289,6 +296,7 @@ def refine_subpix(mask_u8: np.ndarray, corners_xy: np.ndarray, win: int = 7) -> 
 
 
 def centroid_of_mask(mask_u8: np.ndarray) -> tuple[float, float] | None:
+    """Compute the centroid of a binary mask using image moments."""
     m = cv2.moments(mask_u8, binaryImage=True)
     if m["m00"] == 0:
         return None
@@ -335,6 +343,7 @@ def apex_top_point_from_contour(contour: np.ndarray, y_tol: int = 2) -> np.ndarr
 
 
 def labelme_point(label: str, x: float, y: float) -> dict:
+    """Build a single LabelMe point annotation entry."""
     return {
         "label": label,
         "points": [[float(x), float(y)]],
@@ -346,6 +355,7 @@ def labelme_point(label: str, x: float, y: float) -> dict:
 
 
 def build_labelme_json(image_path: str, w: int, h: int, shapes: list[dict], version: str = "5.2.1") -> dict:
+    """Assemble the full LabelMe JSON structure for one annotated image."""
     return {
         "version": version,
         "flags": {},
@@ -358,6 +368,7 @@ def build_labelme_json(image_path: str, w: int, h: int, shapes: list[dict], vers
 
 
 def parse_labels(labels_str: str | None) -> list[str] | None:
+    """Parse a comma-separated vertebra label list from the CLI."""
     if labels_str is None:
         return None
     labels = [x.strip() for x in labels_str.split(",") if x.strip()]
@@ -378,6 +389,7 @@ def process_one_mask(mask_path: Path, out_json_path: Path, labels: list[str] | N
     if not colors:
         return False, f"No non-black colors found: {mask_path}"
 
+    # Collect all non-background vertebra candidates before anatomical ordering.
     vertebra_items = []
     for c in colors:
         m = mask_from_color(img, c, tol=tol)
@@ -417,6 +429,7 @@ def process_one_mask(mask_path: Path, out_json_path: Path, labels: list[str] | N
         else:
             names = requested_labels[:n]
 
+    # Keep track of the previous vertebra bottom edge to stabilize corner order.
     shapes: list[dict] = []
 
     prev_bl = None
@@ -452,6 +465,7 @@ def process_one_mask(mask_path: Path, out_json_path: Path, labels: list[str] | N
             prev_br = br.astype(np.float32)
             continue
 
+        # Lower vertebrae are modeled as quadrilaterals after contour cleanup.
         quad = approx_quad(cnt)
         if quad is None:
             continue
@@ -485,6 +499,7 @@ def process_one_mask(mask_path: Path, out_json_path: Path, labels: list[str] | N
 
 
 def iter_masks(input_path: Path, pattern: str, recursive: bool) -> list[Path]:
+    """Collect mask files from a single file or from a directory tree."""
     if input_path.is_file():
         return [input_path]
 
@@ -497,6 +512,7 @@ def iter_masks(input_path: Path, pattern: str, recursive: bool) -> list[Path]:
 
 
 def main():
+    """Parse CLI arguments and process all matching mask files."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--in", dest="inp", required=True, help="Input mask PNG file or directory with PNG masks.")
     ap.add_argument("--out_dir", required=True, help="Output directory for LabelMe JSON files.")
@@ -505,7 +521,7 @@ def main():
     ap.add_argument("--min_area", type=int, default=300, help="Minimum area for a color region to be considered.")
     ap.add_argument("--recursive", action="store_true", help="Scan input directory recursively for *.png masks.")
     ap.add_argument("--verbose", action="store_true", help="Print per-file status + final summary.")
-    ap.add_argument("--pattern", type=str, default="*_mask_color.png", help="Glob pattern pro výběr masek (default '*_mask_color.png').")
+    ap.add_argument("--pattern", type=str, default="*_mask_color.png", help="Glob pattern used to select mask files (default '*_mask_color.png').")
     args = ap.parse_args()
 
     input_path = Path(args.inp)
@@ -521,6 +537,7 @@ def main():
     if not masks:
         raise FileNotFoundError(f"No PNG masks found in: {input_path}")
 
+    # Track a compact success summary for multi-file conversion runs.
     ok = 0
     fail = 0
 

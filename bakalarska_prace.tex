@@ -172,7 +172,7 @@ V Ústí nad Labem dne \today \hfill Podpis: \makebox[4cm][s]{\dotfill}
 
 \begin{flushright}
     Děkuji vedoucímu práce \vedouciDAT\\
-    za cenné rady a pomoc při tvorbě bakalářské práce.
+    za cenné rady a pomoc při tvorbě bakalářské práce. Zároveň děkuji MUDr. Janu Terčovi a MUDr. Filipovi Roubíčkovi za odborné konzultace a připomínky k medicínsky zaměřeným částem práce. V neposlední řadě děkuji své manželce za trpělivost a psychickou podporu během celého studia i při psaní této práce.
 \end{flushright}
 
 \cleardoublepage
@@ -209,10 +209,9 @@ Cílem práce je navrhnout, implementovat a ověřit dva přístupy k automatizo
 
 Dílčími cíli práce je implementace a otestování obou přístupů, návrh a optimalizace postprocessingu s cílem zvýšit přesnost detekce klíčových bodů a následné porovnání dosažených výsledků na základě přesnosti určených charakteristik (Cobbova úhlu, Jacksonova úhlu a dalších odvozených metrik). Součástí práce je rovněž zhodnocení obou metod z hlediska přesnosti, spolehlivosti a výpočetní náročnosti a formulace doporučeného postupu pro automatizované hodnocení RTG snímků krční páteře.
 
-Práce je členěna do jedenácti kapitol. V kapitole \textit{Úvod} je vymezen cíl práce, dílčí cíle a motivace řešeného problému. Kapitola \textit{Medicínské zobrazování krční páteře a význam analýzy RTG} shrnuje základní poznatky o zobrazování krční páteře a významu radiologického hodnocení. V kapitole \textit{Popis klíčových charakteristik krční páteře} jsou popsány sledované anatomické a radiologické parametry. Kapitola \textit{Přehled přístupů hlubokého učení v medicínském zobrazování} uvádí teoretický přehled metod hlubokého učení se zaměřením na úlohy segmentace, detekce a lokalizace klíčových bodů.
+Práce je členěna do jedenácti kapitol a její hlavní obsah je rozdělen na teoretickou a praktickou část. Teoretická část, zahrnující kapitoly 1 až 5, se věnuje medicínskému a metodickému kontextu řešené problematiky. Nejprve shrnuje základní poznatky o zobrazování krční páteře, významu radiologického hodnocení a sledovaných anatomických a radiologických parametrech. Následně uvádí přehled přístupů hlubokého učení v medicínském zobrazování, zejména v úlohách segmentace, detekce a lokalizace klíčových bodů, a představuje modely, knihovny a frameworky využité v této práci.
 
-V kapitole \textit{Použité modely pro segmentaci a detekci klíčových bodů} jsou představeny modely využité v práci, zejména přístupy založené na architekturách typu U-Net a HRNet. Kapitola \textit{Použité knihovny a frameworky} popisuje softwarové nástroje a knihovny použité při implementaci. V kapitole \textit{Extrakce klíčových bodů ze segmentační masky} je popsán navržený postprocessing pro získání klíčových bodů ze segmentačních výstupů. Kapitola \textit{Popis provedených experimentů} se věnuje datasetu, metodice experimentů, trénování modelů a způsobu vyhodnocení. V kapitole \textit{Výsledky} jsou prezentovány a porovnány dosažené výsledky segmentačního a detekčního přístupu. Kapitola \textit{Závěr} shrnuje hlavní přínosy práce, dosažené výsledky a možná omezení navrženého řešení. Poslední kapitola \textit{Externí Přílohy} obsahuje doplňující materiály.
-
+Praktická část, tvořená kapitolami 6 až 8, popisuje vlastní návrh a experimentální ověření řešení. Zabývá se extrakcí klíčových bodů ze segmentačních masek, použitým datasetem, metodikou experimentů, trénováním modelů a způsobem vyhodnocení. V závěru této části jsou prezentovány a porovnány dosažené výsledky segmentačního a detekčního přístupu.
 
 \chapter{Medicínské zobrazování krční páteře a význam analýzy RTG}
 
@@ -220,7 +219,8 @@ Rentgenové (RTG) vyšetření krční páteře představuje jeden ze základní
 
 Analýza RTG snímků krční páteře se v klinické praxi zaměřuje především na hodnocení sagitální rovnováhy a zakřivení páteře, které mají přímý vliv na biomechaniku krční oblasti a kvalitu života pacienta. Mezi nejčastěji sledované parametry patří Cobbův úhel, Jacksonův úhel nebo sagitální vertikální osa (SVA), jež slouží k posouzení fyziologického či patologického postavení krční páteře. Odchylky od normálního zakřivení mohou vést k chronickým bolestem, omezení hybnosti nebo k neurologickým obtížím, například při kompresi míchy či nervových kořenů \cite{Scheer2013}.
 
-V současné klinické praxi je však hodnocení těchto parametrů založeno převážně na manuální analýze RTG snímků. Lékař nebo radiolog musí na snímku nejprve identifikovat jednotlivé obratle, zpravidla v rozsahu C2–C7, a následně ručně vyznačit referenční body, koncové ploténky nebo osy obratlových těl. Na základě těchto konstrukcí jsou pomocí měřicích nástrojů v PACS systémech nebo specializovaném softwaru dopočítávány úhly a vzdálenosti charakterizující zakřivení krční páteře \cite{Scheer2013}.
+V současné klinické praxi je však hodnocení těchto parametrů založeno převážně na manuální analýze RTG snímků. Lékař nebo radiolog musí na snímku nejprve identifikovat jednotlivé obratle, zpravidla v rozsahu C2–C7, a následně ručně vyznačit referenční body, koncové ploténky nebo osy obratlových těl. Na základě těchto konstrukcí jsou pomocí měřicích nástrojů v PACS (z angl. \textit{Picture Archiving and Communication System}, systémy pro archivaci 
+a přenos obrazových dat) systémech nebo specializovaném softwaru dopočítávány úhly a vzdálenosti charakterizující zakřivení krční páteře \cite{Scheer2013}.
 
 Tento manuální postup je nejen časově náročný, ale také značně závislý na zkušenosti hodnotitele. Různí lékaři mohou volit mírně odlišné referenční body nebo interpretační strategie, což vede k variabilitě naměřených hodnot mezi odlišnými lékaři a institucemi. Subjektivita měření může ovlivnit jak samotnou diagnostiku, tak i následné rozhodování o léčebném postupu, zejména u hraničních nebo mírných patologických nálezů \cite{Ran2024}.
 
@@ -244,15 +244,15 @@ Z pohledu této práce tedy lze konstatovat, že určité formy automatizace ana
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{images/4811033_all_metrics.png}
-\caption{Ukázka vybraných klinických metrik vykreslených v jednom snímku. Červeně je znázorněn Cobbův úhel C2--C7, oranžově sagitální osa C2--C7, fialově sklon C2 a zeleně segmentový úhel C4--C5. Obrázek ilustruje způsob konstrukce metrik z lokalizovaných anatomických bodů.}
+\caption{Ukázka vybraných klinických metrik vykreslených v jednom snímku. Modře je znázorněn Cobbův úhel C2--C7, oranžově sagitální osa C2--C7, fialově sklon C2 a zeleně segmentový úhel C4--C5. Obrázek ilustruje způsob konstrukce metrik z lokalizovaných anatomických bodů.}
 \label{fig:metrics_visualization}
 \end{figure}
 
-Hodnocení sagitálního profilu krční páteře je v klinické praxi založeno na souboru standardizovaných radiologických parametrů, které popisují zakřivení, sklon jednotlivých segmentů a prostorové postavení krční páteře vůči zbytku axiálního skeletu. Tyto metriky jsou běžně stanovovány z laterálních RTG snímků a slouží k posouzení fyziologického či patologického zakřivení krční páteře, k hodnocení degenerativních změn a k analýze pooperačních stavů. Definice jednotlivých charakteristik v této kapitole vycházejí z klinicky používaných měření popsaných v disertační práci MUDr. Martina Bolchy \cite{Bolcha2025}.
+Hodnocení sagitálního profilu krční páteře je v klinické praxi založeno na souboru standardizovaných radiologických parametrů, které popisují zakřivení, sklon jednotlivých segmentů a prostorové postavení krční páteře vůči zbytku axiálního skeletu. Tyto metriky jsou běžně stanovovány z laterálních RTG snímků a slouží k posouzení fyziologického či patologického zakřivení krční páteře, k hodnocení degenerativních změn a k analýze pooperačních stavů. Definice jednotlivých charakteristik v této kapitole vycházejí z klinicky používaných měření popsaných například v disertační práci MUDr. Martina Bolchy \cite{Bolcha2025}.
 
 \section*{Cobbův úhel C2--C7}
 
-Krční lordóza je nejčastěji kvantifikována pomocí Cobbova úhlu mezi obratli C2 a C7. Tento úhel je klinicky definován jako úhel mezi linií dolní krycí plochy obratle C2 a linií dolní krycí plochy obratle C7 na laterálním RTG snímku. Znaménko úhlu přitom určuje charakter zakřivení, kdy záporné hodnoty odpovídají lordóze a kladné hodnoty kyfotickému zakřivení krční páteře \cite{Bolcha2025}. Konstrukce této metriky je schematicky znázorněna na obr.~\ref{fig:metrics_visualization}, kde je Cobbův úhel vyznačen červeně.
+Krční lordóza je nejčastěji kvantifikována pomocí Cobbova úhlu mezi obratli C2 a C7. Tento úhel je klinicky definován jako úhel mezi linií dolní krycí plochy obratle C2 a linií dolní krycí plochy obratle C7 na laterálním RTG snímku. Znaménko úhlu přitom určuje charakter zakřivení, kdy záporné hodnoty odpovídají lordóze a kladné hodnoty kyfotickému zakřivení krční páteře \cite{Bolcha2025}. Konstrukce této metriky je schematicky znázorněna na obr.~\ref{fig:metrics_visualization}, kde je Cobbův úhel vyznačen modře.
 
 Pro účely automatizované analýzy lze dolní krycí plochy obratlů C2 a C7 popsat pomocí dvojic bodů odpovídajících jejich levému a pravému okraji. Označíme-li tyto body jako $\mathbf{p}_{C2}^{BL}$, $\mathbf{p}_{C2}^{BR}$ a $\mathbf{p}_{C7}^{BL}$, $\mathbf{p}_{C7}^{BR}$, lze směrové vektory jednotlivých krycích ploch definovat vztahem:
 \begin{equation}\label{eq:vectors_cobb}
@@ -266,7 +266,7 @@ Samotný Cobbův úhel je následně určen jako úhel mezi těmito vektory.
 
 Jacksonův úhel představuje alternativní způsob vyjádření sagitálního zakřivení krční páteře. Klinicky je definován jako úhel mezi linií vedenou podél zadní strany těla obratle C2 a linií vedenou podél zadní strany těla obratle C7 \cite{Bolcha2025}. Na rozdíl od Cobbova úhlu tedy nevychází z krycích ploch, ale z orientace zadních hran obratlových těl.
 
-Označíme-li dva body ležící na zadní hraně obratle C2 jako $\mathbf{p}_{C2}^{P1}$ a $\mathbf{p}_{C2}^{P2}$ a analogicky dva body na zadní hraně obratle C7 jako $\mathbf{p}_{C7}^{P1}$ a $\mathbf{p}_{C7}^{P2}$, lze směrové vektory obou hran zapsat jako:
+Označíme-li dva body ležící na zadní hraně obratle C2 jako $\mathbf{p}_{C2}^{TR}$ a $\mathbf{p}_{C2}^{BR}$ a analogicky dva body na zadní hraně obratle C7 jako $\mathbf{p}_{C7}^{TR}$ a $\mathbf{p}_{C7}^{BR}$, lze směrové vektory obou hran zapsat jako:
 \begin{equation}
 \mathbf{u}_1 = \mathbf{p}_{C2}^{P2} - \mathbf{p}_{C2}^{P1}, \quad
 \mathbf{u}_2 = \mathbf{p}_{C7}^{P2} - \mathbf{p}_{C7}^{P1}.
@@ -363,7 +363,7 @@ Pro segmentaci medicínských snímků zavedli Ronneberger et al. roku 2015 mode
 
 Původní U-Net dosáhl vynikajících výsledků i s malým počtem trénovacích vzorků díky silné \textbf{augmentaci dat}\footnote{Augmentace dat je technika používaná při trénování modelů strojového učení, při níž se z existujících trénovacích obrazů vytvářejí nové modifikované vzorky pomocí transformací, jako je rotace, změna měřítka, posun, zrcadlení nebo úprava jasu. Cílem je zvětšit efektivní velikost datasetu, zvýšit robustnost modelu a snížit riziko přeučení (overfittingu).} a vhodné volbě ztrátové funkce. Autoři úspěšně aplikovali U-Net na segmentaci neurálních struktur na snímcích z elektronové mikroskopie (EM) a buněk v mikroskopických obrazech, kde jejich metoda výrazně překonala předchozí přístupy \cite{Ronneberger2015}.
 
-Shim et al. roku 2022 aplikovali U-Net a jeho modifikace na segmentaci krčních obratlů a lebečních kostí na rentgenových snímcích, přičemž dosáhli přesnosti kolem 99~\% a hodnoty Dice (rovnice~\ref{eq:dice}) koeficientu okolo 0,89 \cite{Shim2022}.
+Shim et al. roku 2022 aplikovali U-Net a jeho modifikace na segmentaci krčních obratlů a lebečních kostí na rentgenových snímcích, přičemž dosáhli přesnosti kolem 99~\% a hodnoty Dice (vzorec~\ref{eq:dice}) koeficientu okolo 0,89 \cite{Shim2022}.
 
 Velkou výhodou U-Net architektury je její flexibilita – existuje řada \textbf{variant a vylepšení}. Pro 3D medicínská data (např. MRI či CT objemy) byla vyvinuta verze \textbf{3D U-Net}, která nahrazuje všechny 2D konvoluce a pooling 3D operacemi. Çiçek et al. (2016) tak rozšířili původní U-Net na volumetrickou segmentaci a ukázali efektivitu na 3D biomedicínských datech \cite{Cicek2016}. Kromě rozšíření do 3D prostoru existují i varianty U-Netu s \textbf{reziduálními bloky}\footnote{Reziduální bloky jsou stavební prvky neuronových sítí, v nichž se vstup bloku přičítá k jeho výstupu pomocí tzv. \textit{skip connection}. Model se tak nemusí učit celou novou transformaci od začátku, ale pouze rozdíl mezi vstupem a požadovaným výstupem, což usnadňuje trénování hlubších sítí a zlepšuje šíření gradientu.} či \textbf{attention mechanismy}\footnote{Attention mechanismy umožňují modelu adaptivně zvýraznit důležité části vstupního obrazu nebo příznakových map a potlačit méně relevantní informace. V segmentačních úlohách tak pomáhají síti lépe se soustředit na anatomické struktury nebo patologické oblasti, což může vést k přesnější lokalizaci hranic a celkově lepší segmentaci.}, které mohou dále zlepšit přesnost segmentace zvýrazněním relevantních oblastí \cite{Shim2022}.
 
@@ -384,7 +384,7 @@ Základním stavebním prvkem této architektury je tzv. \textbf{hourglass modul
 
 Vlastnost, která odlišuje \textit{stacked hourglass} od jednodušších encoder-decoder architektur, spočívá v \textbf{řetězení několika hourglass modulů za sebou}. Každý modul vytváří vlastní odhad polohy klíčových bodů a následující modul tento odhad dále zpřesňuje. Síť tedy neprovádí lokalizaci pouze jednou, ale opakovaně se k ní vrací a v dalších průchodech koriguje dřívější nepřesnosti. Tento princip iterativního zpřesňování je v původní práci doplněn také o \textbf{intermediate supervision}, tedy pomocné ztrátové funkce na výstupech jednotlivých modulů. Díky tomu se model učí smysluplné reprezentace již v průběžných fázích sítě a lépe využívá víceúrovňové obrazové informace \cite{Newell2016}.
 
-Výstupem stacked hourglass modelu obvykle nejsou přímo souřadnice bodů, ale \textbf{heatmapy} odpovídající jednotlivým klíčových bodů. Pro každý klíčový bod model predikuje jednu pravděpodobnostní mapu, v níž vysoké hodnoty označují pravděpodobnou polohu daného bodu. Během trénování se jako referenční výstup používají zpravidla Gaussovsky rozprostřené heatmapy se středem v anotované poloze bodu. Tento přístup je v úlohách přesné lokalizace výhodný, protože model neodhadne pouze jedinou dvojici souřadnic, ale celé prostorové rozložení pravděpodobnosti. Současné práce v medicínském zobrazování potvrzují, že \textbf{heatmap-based} metody patří mezi hlavní přístupy pro detekci klíčových bodů, zejména tam, kde je důležitá vysoká lokalizační přesnost a omezení chyb vznikajících při převodu mezi nízkým a vysokým rozlišením \cite{Zhang2024SRLD}.
+Výstupem stacked hourglass modelu obvykle nejsou přímo souřadnice bodů, ale \textbf{heatmapy} odpovídající jednotlivým klíčových bodů. Pro každý klíčový bod model predikuje jednu pravděpodobnostní mapu, v níž vysoké hodnoty označují pravděpodobnou polohu daného bodu. Během trénování se jako referenční výstup používají zpravidla gaussovsky rozprostřené heatmapy se středem v anotované poloze bodu. Tento přístup je v úlohách přesné lokalizace výhodný, protože model neodhadne pouze jedinou dvojici souřadnic, ale celé prostorové rozložení pravděpodobnosti. Současné práce v medicínském zobrazování potvrzují, že \textbf{heatmap-based} metody patří mezi hlavní přístupy pro detekci klíčových bodů, zejména tam, kde je důležitá vysoká lokalizační přesnost a omezení chyb vznikajících při převodu mezi nízkým a vysokým rozlišením \cite{Zhang2024SRLD}.
 
 Pro rentgenové snímky páteře je stacked hourglass vhodný zejména proto, že dokáže současně využít \textbf{globální uspořádání páteře} i \textbf{lokální tvar jednotlivých obratlů}. Při detekci rohů obratlových těl nebo jiných referenčních bodů totiž nestačí sledovat pouze malé okolí bodu, ale je nutné zohlednit i polohu vůči sousedním obratlům a celkové zakřivení páteře. Hourglass architektura tuto potřebu přirozeně naplňuje víceškálovým zpracováním obrazu a opakovanou refinací predikce. Výhodou je také to, že model lze učit přímo na lokalizační úlohu bez nutnosti následného odvozování bodů ze segmentačních masek.
 
@@ -406,7 +406,7 @@ V implementaci byly využity jak obecné knihovny pro numerické výpočty a pr�
 \subsection*{PyTorch}
 PyTorch tvoří základ celé implementace neuronových sítí a experimentální pipeline. V projektu je využíván především pro reprezentaci dat ve formě tenzorů, přesun výpočtů na GPU, optimalizaci modelu a správu trénovacího procesu. Třídy \texttt{Dataset} a \texttt{DataLoader} z modulu \texttt{torch.utils.data} slouží k dávkovému načítání trénovacích a validačních dat, přičemž v třídě \texttt{AtlasDataset} jsou vstupní snímky a masky převáděny do formátu vhodného pro další transformace a zpracování modelem \cite{PyTorchDataLoader}. V souboru \texttt{atlas\_model\_multiclass\_patch.py} je \texttt{DataLoader} použit pro tvorbu trénovacích a validačních batchů a pro řízení náhodnosti při načítání dat pomocí definovaného seedování.
 
-Další důležitou úlohou PyTorche je samotné trénování modelu. Ve skriptu \texttt{training\-\_new.py} jsou pomocí PyTorche realizovány dopředný průchod sítí, výpočet ztráty, zpětné šíření gradientu a aktualizace vah modelu. K optimalizaci parametrů je použit algoritmus \texttt{Adam}, zatímco řízení učicí rychlosti je zajištěno schedulery \texttt{ReduceLR\-OnPlateau} a \texttt{CosineAnnealing\-WarmRestarts}. Modul \texttt{torch.nn.functional} je v kódu využíván například pro převod predikovaných tříd na \textit{one-hot} reprezentaci pomocí \texttt{F.one\_hot}, což je následně potřeba při výpočtu Dice metriky po jednotlivých třídách. Funkce \texttt{torch.softmax} a \texttt{torch.argmax} jsou využity jak během validace, tak při inferenci k převodu výstupních logitů na finální segmentační predikci.
+Další důležitou úlohou PyTorche je samotné trénování modelu. Ve skriptu \texttt{training\-.py} jsou pomocí PyTorche realizovány dopředný průchod sítí, výpočet ztráty, zpětné šíření gradientu a aktualizace vah modelu. K optimalizaci parametrů je použit algoritmus \texttt{Adam}, zatímco řízení learning rate je zajištěno schedulery \texttt{ReduceLR\-OnPlateau} a \texttt{CosineAnnealing\-WarmRestarts}. Modul \texttt{torch.nn.functional} je v kódu využíván například pro převod predikovaných tříd na \textit{one-hot} reprezentaci pomocí \texttt{F.one\_hot}, což je následně potřeba při výpočtu Dice metriky po jednotlivých třídách. Funkce \texttt{torch.softmax} a \texttt{torch.argmax} jsou využity jak během validace, tak při inferenci k převodu výstupních logitů na finální segmentační predikci.
 
 PyTorch je dále použit pro ukládání a načítání checkpointů modelu pomocí \texttt{torch\-.save} a \texttt{torch\-.load}, což umožňuje průběžné ukládání vah během trénování i následné znovunačtení modelu pro testování a inferenci. V souboru \texttt{training\_new.py} je navíc využit \texttt{SummaryWriter} z \texttt{torch.utils\-.tensorboard} pro zaznamenávání průběhu ztráty, Dice skóre a učicí rychlosti do TensorBoardu, což usnadňuje sledování konvergence modelu a porovnávání jednotlivých experimentů.
 
@@ -492,7 +492,7 @@ Získané body jsou vylepšeny subpixelovou korekcí pomocí \texttt{refine\_sub
 
 Nově vypočtená poloha se následně použije jako další počáteční odhad a celý postup se opakuje iterativně, dokud není splněna zadaná podmínka ukončení. Díky tomu lze určit polohu bodu s přesností vyšší, než odpovídá rozlišení jednoho pixelu.
 
-Body jsou následně seřazeny jako: levý dolní, pravý dolní, apex (horní) pomocí funkce \texttt{order\_triangle\_bl\_br\_apex}.
+Body jsou následně seřazeny jako: levý dolní, pravý dolní, apex (horní) pomocí funkce \texttt{order\-\_triangle\-\_bl\_br\_apex}.
 
 Použité parametry funkcí jsou vypsané v tabulce \ref{tab:c2_extraction_params}.
 
@@ -533,10 +533,9 @@ Použité parametry funkcí jsou vypsané v tabulce \ref{tab:c2_extraction_param
 U ostatních obratlů jsou anotovány čtyři body a to rohy obratlů (viditelné na obrázku~\ref{fig:c2_c3_labeled}). Navržený postup jejich získání vypadá následovně:
 
 \begin{itemize}
-  \item Funkce \texttt{approx\_quad} hledá čtyřúhelníkové přiblížení kontury pomocí polygonální aproximace. Pokud polygonální aproximace selže, postupuje se alternativně přes metodu \texttt{cv2.minAreaRect}, která odhaduje pomocí obdelníku.
-  \item Pokud jsou rohy příliš blízko nebo zkreslené, funkce \texttt{merge\_close\_points} a \texttt{quad\_is\_valid} slouží ke kontrole a opravě.
+  \item Funkce \texttt{approx\_quad} hledá čtyřúhelníkové přiblížení kontury pomocí polygonální aproximace. Pokud polygonální aproximace selže, postupuje se alternativně přes metodu \texttt{cv2.minAreaRect}, která vrací nejmenší obdelník obsahující celou plochu obratle.
   \item Rohy jsou doladěny pomocí \texttt{refine\_subpix}, stejně jako u obratle C2. Subpixelová korekce zajišťuje vyšší přesnost rohů, což má pozitivní vliv na následné klinické měření metrik.
-  \item Následně jsou body seřazeny podle pozice dolních bodů předchozího obratle (funkce \texttt{order\_quad\_from\_previous\_bottom}). Například tedy levý horní roh obratle C4 bude bod z kontury, který je nejbližší levému dolnímu rohu obratle C5.
+  \item Následně jsou body seřazeny podle pozice dolních bodů předchozího obratle (funkce \texttt{order\_quad\_from\_previous\_bottom}). Například tedy levý horní roh obratle C4 bude bod z kontury, který je nejbližší levému dolnímu rohu obratle C3.
 \end{itemize}
 
 \begin{table}[H]
@@ -605,7 +604,7 @@ Celý proces pro jednotlivý snímek je realizován ve funkci \texttt{process\_o
 V této práci byl využit veřejně dostupný dataset \textbf{Cervical Spine X-ray Atlas (CSXA)}\cite{Ran2024}, publikovaný v roce 2024. Tento dataset obsahuje \textbf{4\,963} rentgenových snímků krční páteře ve formátu PNG. Ke každému snímku je přiložen soubor s anotací ve formátu JSON.
 
 Každý obrázek byl ručně anotován sadou \textbf{23 anatomických klíčových bodů}, které zahrnují centroid a dva body dolní krycí plochy C2 a rohové body obratlů C3--C7.. Anotace byly třikrát ověřeny různými experty a validovány jak ručně, tak skriptem kontrolujícím úplnost a konzistenci.\cite{Ran2024}
-Bohužel dataset i přes ověřované anotace obsahuje chybně anotované snímky (objevené při experimentování v rámci této práce), které byly v této práci opraveny (chybné anotace ručně změneny) za účelem nezkreslených výsledků.
+Bohužel dataset i přes ověřované anotace obsahuje chybně anotované snímky, kde pozice bodů jsou správné, ale jejich názvy jsou prohozené (objevené při experimentování v rámci této práce). Chybně anotované snímky byly v této práci opraveny (chybné anotace ručně prohozeny) za účelem nezkreslených výsledků.
 
 Dataset je k dispozici na GitHubu\footnote{\url{https://github.com/yran888/CSXA-dataset}} a je archivován v úložišti Science Data Bank\footnote{\url{https://doi.org/10.57760/sciencedb.15391}}.
 
@@ -667,7 +666,7 @@ Vzhledem k vysokému rozlišení vstupních rentgenových snímků a relativně 
 
 První výhodou je výrazné snížení paměťové náročnosti, protože jednotlivé patche obsahují pouze lokální informaci, a lze je zpracovávat ve větší dávce nebo s vyšším rozlišením než celé obrazy. Dále tento přístup zvyšuje datovou variabilitu, protože během tréninku jsou z každého obrázku vybírány různé části. Model se tak naučí rozpoznávat obratle v různých pozicích, s různým okolím a úrovní ořezu, což přispívá k lepší generalizaci. V neposlední řadě patch-based trénink eliminuje riziko přeučení na globální kontext snímku (například fixní polohu páteře vůči rozměrům obrazu), protože vstupy jsou vždy jen lokální.
 
-Technicky je tento přístup realizován v konstruktoru třídy \texttt{AtlasDataset} v souboru \texttt{atlas\_dataset\_patch.py}, kde je nastaven parametr \texttt{patches\_per\_image=20}. Náhodné výřezy jsou generovány pomocí transformační komponenty \texttt{RandSpatialCropd} z knihovny MONAI, která zajišťuje, že každý patch bude rozměrově konzistentní a bude pocházet z náhodně zvoleného místa na vstupním snímku.
+Technicky je tento přístup realizován v konstruktoru třídy \texttt{AtlasDataset} v souboru \texttt{atlas\-\_dataset\-\_patch.py}, kde je nastaven parametr \texttt{patches\_per\_image=20}. Náhodné výřezy jsou generovány pomocí transformační komponenty \texttt{RandSpatialCropd} z knihovny MONAI, která zajišťuje, že každý patch bude rozměrově konzistentní a bude pocházet z náhodně zvoleného místa na vstupním snímku.
 
 Celkově tak patch-based strategie umožňuje efektivnější trénování modelu, podporuje robustní učení na různorodých výřezech a zároveň poskytuje jistou míru augmentace bez nutnosti rozšiřovat původní dataset.
 
@@ -729,6 +728,23 @@ V implementaci je tento scheduler nakonfigurován s parametry $T_0 = 5$ a $T_{mu
 Tento typ scheduleru umožňuje modelu opakovaně procházet fázemi rychlé a pomalé aktualizace, což může vést k lepší generalizaci – model se v pozdějších fázích tréninku vyhne „zamrznutí“ v lokálním minimu. Zároveň pomáhá stabilizovat učení při kombinaci s náhodnými augmentacemi a patch-based tréninkem, protože efektivně řídí rozsah úprav vah v různých fázích tréninku.
 
 Celá strategie plánování learning rate je implementována v souboru \break \texttt{atlas\_model\_multiclass\_patch.py} ve funkci \texttt{get\_scheduler}.
+
+\begin{table}[H]
+\centering
+\caption{Výsledné hodnoty metriky Dice segmentačního modelu na trénovací a validační množině.}
+\label{tab:dice_train_val}
+\begin{tabular}{lc}
+\hline
+Množina & Dice \\
+\hline
+Trénovací & 0.9605 \\
+Validační & 0.9495 \\
+\hline
+\end{tabular}
+\end{table}
+
+Jak ukazují hodnoty v tabulce~\ref{tab:dice_train_val}, model dosáhl vysoké míry překryvu predikovaných a referenčních masek jak na trénovací, tak na validační množině.
+
 
 \subsection*{Inference a sliding window}
 \label{subsec:sliding_window}
@@ -798,7 +814,7 @@ Výhodou přímé detekce klíčových bodů je především jednodušší infer
 
 Pro přímou detekci klíčových bodů byl v této práci použit model typu \textbf{Stacked Hourglass} implementovaný v knihovně PyTorch. Architektura vychází z principu opakovaného zpracování obrazu ve více rozlišeních, kdy dochází ke střídání kroků snižování a následného obnovování prostorového rozlišení. Tím je možné současně zachytit globální kontext celého snímku i jemné lokální detaily potřebné pro přesnou lokalizaci anatomických klíčových bodů.
 
-Použitá síť obsahuje vstupní konvoluční blok, na který navazují reziduální vrstvy a dvojice za sebou řazených hourglass modulů. V konfiguraci modelu je počet stacked bloků nastaven na $n = 2$, počet výstupních kanálů odpovídá počtu klíčových bodů, tedy 23, a model pracuje s RGB vstupem o velikosti $256 \times 256$ pixelů. Každý výstupní kanál reprezentuje jednu tepelnou mapu odpovídající jednomu anatomickému bodu.
+Použitá síť obsahuje vstupní konvoluční blok, na který navazují reziduální vrstvy a dvojice za sebou řazených hourglass modulů. V konfiguraci modelu je počet stacked bloků nastaven na $n = 2$ (což odpovídá zjednodušené verzi modelu, zvolené pro rychlejší dosažení výsledků), počet výstupních kanálů odpovídá počtu klíčových bodů, tedy 23, a model pracuje s RGB vstupem o velikosti $256 \times 256$ pixelů. Každý výstupní kanál reprezentuje jednu tepelnou mapu odpovídající jednomu anatomickému bodu.
 
 Z hlediska zpracování obrazu lze architekturu rozdělit do tří částí:
 \begin{enumerate}
@@ -860,7 +876,7 @@ Volba rozlišení heatmap představuje důležitý kompromis mezi lokalizační 
 Vyšší rozlišení heatmap však současně zvyšuje paměťové nároky modelu, množství výpočetních operací i dobu inference. Zároveň nelze předpokládat, že samotné zvětšení heatmap automaticky povede k lepší přesnosti, protože výsledná kvalita lokalizace závisí také na schopnosti modelu naučit se dostatečně diskriminační prostorové reprezentace. V praxi je proto rozlišení $64 \times 64$ často voleno jako rozumný kompromis mezi výpočetní efektivitou a přesností lokalizace. Další zvýšení rozlišení by bylo vhodné ověřit experimentálně, protože jeho přínos by se mohl projevit jen u některých bodů nebo pouze při současné úpravě architektury modelu a způsobu dekódování souřadnic.
 
 
-\chapter{Výsledky}
+\chapter{Analýza výstupů modelů}
 
 Tato kapitola prezentuje výsledky experimentální části práce se zaměřením na porovnání segmentačního přístupu a přístupu založeného na detekci klíčových bodů. Vyhodnocení bylo provedeno na úrovni klinických metrik odvozených z predikovaných anatomických bodů, nikoli pouze na úrovni pixelové nebo bodové přesnosti. Hlavním cílem kapitoly je ukázat, s jakou přesností byly jednotlivé metriky určeny a který z obou přístupů poskytl přesnější výstupy vzhledem k zadání práce.
 
@@ -872,7 +888,7 @@ Původní dataset obsahoval celkem 4\,963 snímků. Při samostatném vyhodnocen
 
 Rozdíl v počtu vyhodnocených případů měl dva důvody. U segmentačního přístupu bylo 8 snímků vyřazeno při výpočtu klinických metrik z důvodu chybějícího bodu \texttt{C7 bottom left}, který je potřebný pro výpočet části sledovaných charakteristik. U detekčního přístupu naopak chyběl již ve vstupních predikcích 1 snímek. Pro přímé srovnání obou metod proto byla použita sjednocená evaluační množina tvořená průnikem obou množin, která obsahovala 4\,954 snímků.
 
-Protože však není vhodné společně prezentovat výsledky na trénovacích i testovacích datech, byla tato sjednocená množina dále rozdělena podle rozdělení pro fold 0, na němž byly oba modely trénovány. Trénovací část tak obsahovala 3\,963 snímků a testovací část 991 snímků. Veškeré hlavní závěry v této kapitole jsou proto formulovány na základě testovací části sjednocené evaluační množiny. Výsledky na trénovací části jsou uváděny pouze doplňkově, zejména pro posouzení stability obou přístupů a rozdílu mezi oběma částmi dat.
+Protože však není vhodné společně prezentovat výsledky na trénovacích i testovacích datech, byla tato sjednocená množina dále rozdělena podle rozdělení pro fold 0, na němž byly oba modely trénovány. Trénovací část tak obsahovala 3\,963 snímků a testovací část 991 snímků.
 
 \section{Srovnání podle jednotlivých metrik}
 
@@ -943,6 +959,29 @@ Výrazný rozdíl byl patrný také u Cobbova úhlu C2--C7, kde segmentační mo
 
 Grafy na obrázcích~\ref{fig:mae_comparison_test} a~\ref{fig:mae_comparison_train} současně ukazují, že pořadí obou přístupů zůstává stejné i na trénovací části dat. U segmentačního přístupu jsou však na testovací části patrné vyšší chyby zejména u Cobbova úhlu C2--C7, SVA C2--C7 a segmentového úhlu C6--C7. U detekčního přístupu jsou rozdíly mezi oběma částmi dat menší, což je v souladu i se souhrnnými výsledky z tabulky~\ref{tab:overall_comparison}.
 
+\begin{table}[H]
+\centering
+\caption{Bias segmentačního a detekčního přístupu pro jednotlivé metriky na testovací množině.}
+\label{tab:bias_seg_det_test}
+\begin{tabular}{lcc}
+\hline
+Metrika & Segmentace & Detekce \\
+\hline
+Cobb\_C2\_C7\_deg & -0.1397 & -0.1403 \\
+SVA\_C2\_C7\_px & 0.1218 & 0.2444 \\
+Seg\_C2\_C3\_deg & -0.2366 & 0.1785 \\
+Seg\_C3\_C4\_deg & -0.0485 & -0.5209 \\
+Seg\_C4\_C5\_deg & -0.0078 & 0.8185 \\
+Seg\_C5\_C6\_deg & 0.1422 & 0.1026 \\
+Seg\_C6\_C7\_deg & 0.0111 & -0.7190 \\
+Slope\_C2\_deg & 0.4660 & -0.3727 \\
+\hline
+\end{tabular}
+\end{table}
+
+Z tabulky~\ref{tab:bias_seg_det_test} je patrné, že bias obou přístupů zůstává u většiny metrik relativně malý. Ve srovnání se segmentačním přístupem se však u detekčního přístupu výrazněji projevuje kladný i záporný bias, zatímco segmentační přístup vykazuje hodnoty biasu obecně bližší nule s vyjímkou metriky \textit{Slope\_C2\_deg}, kterou segmentační model nadhodnocuje.
+
+
 \section{Výsledky hlavních klinických metrik}
 
 \subsection{Cobbův úhel C2--C7}
@@ -955,29 +994,33 @@ V bodovém grafu detekce klíčových bodů (obrázek \ref{fig:scatter_det_test_
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\linewidth]{images/results/test/seg/hist/Cobb_C2_C7_deg_error_histogram.png}
-    \caption{Histogram chyb výpočtu Cobbova úhlu C2--C7 u segmentačního přístupu na testovací množině. Chyba je definována jako rozdíl mezi predikovanou a referenční hodnotou.}
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/results/test/seg/hist/Cobb_C2_C7_deg_error_histogram.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/results/test/det/hist/Cobb_C2_C7_deg_error_histogram.png}
+    \end{minipage}
+    \caption{Histogramy chyb výpočtu Cobbova úhlu C2--C7 na testovací množině. Vlevo je segmentační přístup, vpravo přímá detekce klíčových bodů. Chyba je definována jako rozdíl mezi predikovanou a referenční hodnotou.}
     \label{fig:hist_seg_test_cobb_c2_c7}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\linewidth]{images/results/test/seg/scatter/Cobb_C2_C7_deg_scatter_gt_vs_pred.png}
-    \caption{Porovnání referenčních a predikovaných hodnot Cobbova úhlu C2--C7 u segmentačního přístupu na testovací množině. Přerušovaná přímka znázorňuje ideální shodu predikce s referencí.}
-    \label{fig:scatter_seg_test_cobb_c2_c7}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\linewidth]{images/results/test/det/hist/Cobb_C2_C7_deg_error_histogram.png}
-    \caption{Histogram chyb výpočtu Cobbova úhlu C2--C7 u detekčního přístupu na testovací množině. Chyba je definována jako rozdíl mezi predikovanou a referenční hodnotou.}
     \label{fig:hist_det_test_cobb_c2_c7}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\linewidth]{images/results/test/det/scatter/Cobb_C2_C7_deg_scatter_gt_vs_pred.png}
-    \caption{Porovnání referenčních a predikovaných hodnot Cobbova úhlu C2--C7 u detekčního přístupu na testovací množině. Přerušovaná přímka znázorňuje ideální shodu predikce s referencí.}
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/results/test/seg/scatter/Cobb_C2_C7_deg_scatter_gt_vs_pred.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/results/test/det/scatter/Cobb_C2_C7_deg_scatter_gt_vs_pred.png}
+    \end{minipage}
+    \caption{Porovnání referenčních a predikovaných hodnot Cobbova úhlu C2--C7 na testovací množině. Vlevo je segmentační přístup, vpravo přímá detekce klíčových bodů. Přerušovaná přímka znázorňuje ideální shodu predikce s referencí.}
+    \label{fig:scatter_seg_test_cobb_c2_c7}
     \label{fig:scatter_det_test_cobb_c2_c7}
 \end{figure}
 
@@ -989,29 +1032,35 @@ Přestože i detekční přístup vykázal u této metriky vysokou korelaci, seg
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\linewidth]{images/results/test/seg/hist/SVA_C2_C7_px_error_histogram.png}
-    \caption{Histogram chyb výpočtu sagitální vertikální osy C2--C7 u segmentačního přístupu na testovací množině. Chyba je definována jako rozdíl mezi predikovanou a referenční hodnotou.}
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/results/test/seg/hist/SVA_C2_C7_px_error_histogram.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/results/test/det/hist/SVA_C2_C7_px_error_histogram.png}
+    \end{minipage}
+    \caption{Histogramy chyb výpočtu sagitální vertikální osy C2--C7 na testovací množině. Vlevo je segmentační přístup, vpravo přímá detekce klíčových bodů. Chyba je definována jako rozdíl mezi predikovanou a referenční hodnotou.}
     \label{fig:hist_seg_test_sva_c2_c7}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\linewidth]{images/results/test/seg/scatter/SVA_C2_C7_px_scatter_gt_vs_pred.png}
-    \caption{Porovnání referenčních a predikovaných hodnot sagitální vertikální osy C2--C7 u segmentačního přístupu na testovací množině. Přerušovaná přímka znázorňuje ideální shodu predikce s referencí.}
-    \label{fig:scatter_seg_test_sva_c2_c7}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\linewidth]{images/results/test/det/hist/SVA_C2_C7_px_error_histogram.png}
-    \caption{Histogram chyb výpočtu sagitální vertikální osy C2--C7 u detekčního přístupu na testovací množině. Chyba je definována jako rozdíl mezi predikovanou a referenční hodnotou.}
     \label{fig:hist_det_test_sva_c2_c7}
 \end{figure}
 
+Z histogramu chyb detekčního přístupu (obrázek \ref{fig:hist_det_test_sva_c2_c7} je patrné, že rozdělení není zcela symetrické kolem nulové hodnoty a je mírně posunuto do záporných hodnot. To naznačuje tendenci modelu k lehkému podhodnocování referenčních hodnot, tedy k mírně zápornému biasu. Tento jev je patrný zejména u metrik \textit{Seg\_C6\_C7\_deg}, \textit{Seg\_C3\_C4\_deg}, \textit{Slope\_C2\_deg} a v menší míře také u \textit{Cobb\_C2\_C7\_deg}. U ostatních metrik však zůstává rozdělení chyb soustředěno v blízkosti nuly a celkový bias detekčního přístupu je pouze velmi malý.
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\linewidth]{images/results/test/det/scatter/SVA_C2_C7_px_scatter_gt_vs_pred.png}
-    \caption{Porovnání referenčních a predikovaných hodnot sagitální vertikální osy C2--C7 u detekčního přístupu na testovací množině. Přerušovaná přímka znázorňuje ideální shodu predikce s referencí.}
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/results/test/seg/scatter/SVA_C2_C7_px_scatter_gt_vs_pred.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/results/test/det/scatter/SVA_C2_C7_px_scatter_gt_vs_pred.png}
+    \end{minipage}
+    \caption{Porovnání referenčních a predikovaných hodnot sagitální vertikální osy C2--C7 na testovací množině. Vlevo je segmentační přístup, vpravo přímá detekce klíčových bodů. Přerušovaná přímka znázorňuje ideální shodu predikce s referencí.}
+    \label{fig:scatter_seg_test_sva_c2_c7}
     \label{fig:scatter_det_test_sva_c2_c7}
 \end{figure}
 
@@ -1023,29 +1072,33 @@ Rozdíl mezi oběma přístupy byl tedy výrazný nejen v úrovni absolutní chy
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\linewidth]{images/results/test/seg/hist/Slope_C2_deg_error_histogram.png}
-    \caption{Histogram chyb výpočtu sklonu obratle C2 u segmentačního přístupu na testovací množině. Chyba je definována jako rozdíl mezi predikovanou a referenční hodnotou.}
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/results/test/seg/hist/Slope_C2_deg_error_histogram.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/results/test/det/hist/Slope_C2_deg_error_histogram.png}
+    \end{minipage}
+    \caption{Histogramy chyb výpočtu sklonu obratle C2 na testovací množině. Vlevo je segmentační přístup, vpravo přímá detekce klíčových bodů. Chyba je definována jako rozdíl mezi predikovanou a referenční hodnotou.}
     \label{fig:hist_seg_test_slope_c2}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\linewidth]{images/results/test/seg/scatter/Slope_C2_deg_scatter_gt_vs_pred.png}
-    \caption{Porovnání referenčních a predikovaných hodnot sklonu obratle C2 u segmentačního přístupu na testovací množině. Přerušovaná přímka znázorňuje ideální shodu predikce s referencí.}
-    \label{fig:scatter_seg_test_slope_c2}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\linewidth]{images/results/test/det/hist/Slope_C2_deg_error_histogram.png}
-    \caption{Histogram chyb výpočtu sklonu obratle C2 u detekčního přístupu na testovací množině. Chyba je definována jako rozdíl mezi predikovanou a referenční hodnotou.}
     \label{fig:hist_det_test_slope_c2}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\linewidth]{images/results/test/det/scatter/Slope_C2_deg_scatter_gt_vs_pred.png}
-    \caption{Porovnání referenčních a predikovaných hodnot sklonu obratle C2 u detekčního přístupu na testovací množině. Přerušovaná přímka znázorňuje ideální shodu predikce s referencí.}
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/results/test/seg/scatter/Slope_C2_deg_scatter_gt_vs_pred.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/results/test/det/scatter/Slope_C2_deg_scatter_gt_vs_pred.png}
+    \end{minipage}
+    \caption{Porovnání referenčních a predikovaných hodnot sklonu obratle C2 na testovací množině. Vlevo je segmentační přístup, vpravo přímá detekce klíčových bodů. Přerušovaná přímka znázorňuje ideální shodu predikce s referencí.}
+    \label{fig:scatter_seg_test_slope_c2}
     \label{fig:scatter_det_test_slope_c2}
 \end{figure}
 
@@ -1196,7 +1249,13 @@ CUDA verze hlášená ovladačem & 12.7 \\
 
 \subsection{Časová náročnost}
 
-Časová náročnost byla hodnocena měřením doby preprocessingu, času vlastní inference modelu, času postprocessingu, času výpočtu klinických metrik a celkového end-to-end času zpracování jednoho snímku. Souhrnné výsledky jsou uvedeny v tabulce~\ref{tab:runtime_total}. Keypoint detection dosáhla průměrného celkového času 22{,}73~ms na snímek, zatímco segmentační přístup 221{,}63~ms na snímek. Z hlediska celkového end-to-end zpracování byl tedy segmentační přístup přibližně 9{,}8krát pomalejší. Při přepočtu na průchodnost odpovídaly tyto hodnoty přibližně 43{,}99 snímku za sekundu pro keypoint detection a 4{,}51 snímku za sekundu pro segmentační přístup.
+Časová náročnost byla hodnocena měřením doby preprocessingu, času vlastní inference modelu, času postprocessingu, času výpočtu klinických metrik a celkového end-to-end času zpracování jednoho snímku.
+
+Měření časové náročnosti bylo realizováno v jazyce Python pomocí standardní knihovny \texttt{time}, konkrétně funkcí \texttt{time.perf\_counter()}, která sloužila k zaznamenání začátku a konce jednotlivých částí pipeline. Protože inference probíhala na GPU, bylo před odečtením uplynulého času vždy provedeno synchronizační volání \texttt{torch.cuda.synchronize()} z knihovny PyTorch, aby naměřený čas odpovídal skutečně dokončeným CUDA operacím a nebyl zkreslen jejich asynchronním vykonáváním. Jednotlivé časy byly ukládány po snímcích do tabulky a následně statisticky zpracovány pomocí knihoven \texttt{pandas} a \texttt{numpy}, zejména s využitím funkcí pro výpočet průměru, mediánu, směrodatné odchylky a 95. percentilu.
+
+Souhrnné výsledky jsou uvedeny v tabulce~\ref{tab:runtime_total}. Keypoint detection dosáhla průměrného celkového času 22{,}73~ms na snímek, zatímco segmentační přístup 221{,}63~ms na snímek. Z hlediska celkového end-to-end zpracování byl tedy segmentační přístup přibližně 9{,}8krát pomalejší. Při přepočtu na průchodnost odpovídaly tyto hodnoty přibližně 43{,}99 snímku za sekundu pro keypoint detection a 4{,}51 snímku za sekundu pro segmentační přístup.
+
+
 
 \begin{table}[htbp]
 \centering
@@ -1234,7 +1293,7 @@ Výsledky ukazují, že přístup založený na detekci klíčových bodů je z 
 
 \subsection{Paměťová náročnost}
 
-Paměťová náročnost byla hodnocena na stejném výpočetním uzlu a stejné evaluační množině pomocí samostatného benchmarku. Ten sledoval využití pracovní paměti procesu a u CUDA zařízení také paměť GPU. Pro porovnání metod byl jako hlavní ukazatel zvolen špičkový nárůst alokované GPU paměti během zpracování jednoho snímku (vzorec \ref{eq:gpu_peak_memory_increase}). Tento údaj vyjadřuje, o kolik se zvýšila alokovaná paměť GPU oproti stavu před začátkem zpracování daného snímku.
+Paměťová náročnost byla hodnocena na stejném výpočetním uzlu a stejné evaluační množině pomocí samostatného benchmarku, který během zpracování jednotlivých snímků sledoval využití pracovní paměti procesu a u CUDA zařízení také paměť GPU. Pracovní paměť procesu byla získávána pomocí systémových volání přes knihovnu \texttt{ctypes}, zatímco pro GPU byly v PyTorch použity funkce \texttt{torch.cuda.memory\_allocated()} a \texttt{torch.cuda.memory\_reserved()}. Průběžné vzorkování zajišťovala třída \texttt{MemoryMonitor} spuštěná v samostatném vlákně pomocí knihovny \texttt{threading}; výsledky byly následně statisticky zpracovány s využitím knihoven \texttt{pandas} a \texttt{numpy}. Pro porovnání metod byl jako hlavní ukazatel zvolen špičkový nárůst alokované GPU paměti během zpracování jednoho snímku (vzorec \ref{eq:gpu_peak_memory_increase}), který vyjadřuje, o kolik se zvýšila alokovaná paměť GPU oproti stavu před začátkem zpracování daného snímku.
 
 \begin{equation}
 \Delta M_{\mathrm{GPU}}^{\mathrm{peak}}
@@ -1297,6 +1356,9 @@ Zároveň se ukázalo, že segmentační přístup na testovacích datech mírn�
 
 Detekční přístup byl časově úspornější zejména díky jednodušší inferenční pipeline: po průchodu modelem stačí z jednotlivých heatmap určit polohu maxim a přepočítat souřadnice zpět do původního měřítka snímku. Segmentační přístup naproti tomu vyžaduje nejen samotnou predikci masek, ale také další kroky postprocessingu, například morfologické úpravy, analýzu souvislých komponent, extrakci kontur a odvození klíčových bodů. Z praktického hlediska tedy segmentační metoda představuje přesnější, ale výpočetně náročnější řešení z hlediska časové i paměťové náročnosti.
 
+Je však třeba zohlednit, že použitý detekční model představoval zjednodušenou variantu architektury Stacked Hourglass se dvěma stacky, takže dosažené výsledky odrážejí také zvolený kompromis mezi přesností a výpočetní náročností.
+
+
 \chapter{Závěr}
 
 Cílem této práce bylo navrhnout a ověřit postup pro automatickou analýzu RTG snímků krční páteře se zaměřením na segmentaci obratlů C2 až C7, extrakci anatomických klíčových bodů a následný výpočet vybraných radiologických metrik. Práce se soustředila na dvě odlišné formulace úlohy: na segmentační přístup, v němž jsou nejprve segmentovány jednotlivé obratle a teprve následně jsou ze segmentačních masek odvozeny klíčové body, a na přímou detekci klíčových bodů, kdy model predikuje body přímo ze vstupního snímku.
@@ -1306,6 +1368,8 @@ V rámci práce byla implementována a testována segmentační pipeline založe
 Současně byl do práce zahrnut i přístup založený na přímé detekci klíčových bodů, který představuje alternativu k segmentačnímu řešení. Porovnání obou přístupů ukazuje, že segmentační metoda poskytuje explicitní informaci o tvaru a rozsahu jednotlivých obratlů, zatímco přímá detekce klíčových bodů nabízí jednodušší inferenční pipeline z hlediska výpočetní náročnosti.
 
 Za hlavní přínos práce lze považovat vytvoření uceleného zpracovatelského postupu, který propojuje segmentaci, postprocessing, extrakci klíčových bodů a přípravu podkladů pro výpočet radiologických metrik. Práce zároveň ukazuje, že metody hlubokého učení mají v oblasti automatické analýzy RTG snímků krční páteře značný potenciál, avšak jejich praktické nasazení je podmíněno dostatečnou kvalitou anotací, robustností vůči variabilitě vstupních snímků a pečlivou validací výsledků.
+
+Určitým omezením této práce je také skutečnost, že porovnání se segmentačním přístupem nebylo provedeno vůči plně rozvinuté variantě detekčního modelu, ale vůči zjednodušené konfiguraci architektury Stacked Hourglass se dvěma stacky. Přestože takové nastavení umožnilo dosažení nižší výpočetní náročnosti a jednoduššího nasazení, z hlediska metodického srovnání by bylo vhodné ověřit výsledky i s výkonnější, avšak výpočetně náročnější variantou detekčního modelu. Spravedlivější porovnání obou přístupů by tak mělo zahrnovat nejen přesnost a rychlost inference, ale i srovnatelnou míru optimalizace a kapacity použitých architektur.
 
 Možným směrem dalšího výzkumu je zejména rozšíření datasetu, důkladnější porovnání segmentačních a detekčních přístupů na větším souboru dat a případně také zlepšení extrakce klíčových bodů. Přínosné by bylo rovněž ověřit navržený postup na datech z jiných pracovišť a posoudit jeho generalizační schopnost v reálných klinických podmínkách.
 
